@@ -1,16 +1,18 @@
 %define rubyver         2.0.0
 %define rubyminorver    p353
+%define _prefix         /usr/local
 
 Name:           ruby
 Version:        %{rubyver}%{rubyminorver}
-Release:        2%{?dist}
+Release:        2.kong%{?dist}
 License:        Ruby License/GPL - see COPYING
 URL:            http://www.ruby-lang.org/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  readline readline-devel ncurses ncurses-devel gdbm gdbm-devel glibc-devel tcl-devel gcc unzip openssl-devel db4-devel byacc make libyaml libyaml-devel libffi libffi-devel
+BuildRequires:  readline readline-devel ncurses ncurses-devel gdbm gdbm-devel glibc-devel gcc unzip openssl-devel db4-devel byacc make libyaml libyaml-devel libffi libffi-devel
 Source0:        ftp://ftp.ruby-lang.org/pub/ruby/ruby-%{rubyver}-%{rubyminorver}.tar.gz
 Summary:        An interpreter of object-oriented scripting language
 Group:          Development/Languages
+Prefix:         /usr/local
 Provides: ruby(abi) = 2.0
 Provides: ruby-irb
 Provides: ruby-rdoc
@@ -34,15 +36,16 @@ straight-forward, and extensible.
 %setup -n ruby-%{rubyver}-%{rubyminorver}
 
 %build
-export CFLAGS="$RPM_OPT_FLAGS -Wall -fno-strict-aliasing"
+export CFLAGS="$RPM_OPT_FLAGS -O3 -Wall -pipe -fno-strict-aliasing -fomit-frame-pointer"
 
 %configure \
-  --enable-shared \
+  --disable-shared \
   --disable-rpath \
   --without-X11 \
   --without-tk \
-  --includedir=%{_includedir}/ruby \
-  --libdir=%{_libdir}
+  --with-out-ext=tcl \
+  --with-out-ext=tk
+
 
 make %{?_smp_mflags}
 
@@ -62,8 +65,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}
 %{_datadir}
 %{_libdir}
+%{_mandir}
 
 %changelog
+* Wed Nov 27 2013 Andrew Grim <stopdropandrew@gmail.com> - 2.0.0-p353.kong
+- Move to /usr/local, remote tcl/tk, add man, optimize binary
+
 * Sat Nov 23 2013 Masahito Yoshida <masahito@axsh.net> - 2.0.0-p353
 - Update ruby version to 2.0.0-p353
 
